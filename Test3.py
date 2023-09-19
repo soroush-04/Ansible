@@ -9,9 +9,10 @@ output_file = "filtered-sales-data.csv"
 # Assuming the CSV columns are in the following order: property_id, price, square_feet
 df = pd.read_csv(input_file)
 
+# Check the names of columns
 print(df.columns.tolist())
 
-# # Calculate the price per square foot and add it as a new column
+# Calculate the price per square foot and add it as a new column
 df['price_per_sqft'] = df['price'] / df['sq__ft']
 
 # Calculate the average price per square foot
@@ -26,4 +27,4 @@ filtered_df = filtered_df.drop(columns=['price_per_sqft'])
 # Save the filtered data to a new CSV file
 filtered_df.to_csv(output_file, index=False)
 
-print(f"Filtered data has been written to {output_file}")
+print(f"TEST 3 final filtered data has been written to {output_file}")
