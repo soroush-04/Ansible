@@ -3,8 +3,7 @@ import pandas as pd
 
 # Load the CSV file into a Pandas DataFrame
 input_file = "assignment data.csv"
-output_file = "filtered-sales-data.csv"
-
+output_file = "filtered assignment data.csv"
 
 # Assuming the CSV columns are in the following order: property_id, price, square_feet
 df = pd.read_csv(input_file)
@@ -24,6 +23,7 @@ df['price_per_sqft'] = df['price'] / df['sq__ft']
 # Calculate the average price per square foot
 average_price_per_sqft = df['price_per_sqft'].mean()
 
+# Check if the average is valid
 print("Average price per sqft is",average_price_per_sqft)
 
 # Filter rows where the property's price per square foot is less than the average
