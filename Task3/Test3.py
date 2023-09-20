@@ -2,8 +2,8 @@
 import pandas as pd
 
 # Load the CSV file into a Pandas DataFrame
-input_file = "assignment data.csv"
-output_file = "filtered assignment data.csv"
+input_file = "Task3/assignment data.csv"
+output_file = "Task3/filtered assignment data.csv"
 
 # Assuming the CSV columns are in the following order: property_id, price, square_feet
 df = pd.read_csv(input_file)
@@ -35,4 +35,5 @@ filtered_df = filtered_df.drop(columns=['price_per_sqft'])
 # Save the filtered data to a new CSV file
 filtered_df.to_csv(output_file, index=False)
 
+# Print out the final result
 print(f"TEST 3 final filtered data has been written to {output_file}")
