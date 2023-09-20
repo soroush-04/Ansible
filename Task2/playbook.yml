@@ -1,0 +1,109 @@
+- hosts: webservers # tasks to run on webservers
+  become: yes # escalate the privilege in case using user other than root
+  remote_user: root
+  tasks:
+    - name: "Gather the package information of the distro"
+      ansible.builtin.package_facts:
+        manager: auto # detect the package manager automatically based on distro
+
+    - name: "Install the package if it doesn't exist"
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+        update_cache: yes
+      when: "'httpd' not in ansible_facts.packages and action == 'verify_install'"
+      
+    
+    - name: "Install the mailx package" # install mailx package for sending email from linux env
+      ansible.builtin.yum:
+        name: mailx
+        state: latest
+        update_cache: yes
+      when: "action == 'check-disk'"
+    
+    - name: "Check the disk usage of /"
+      shell: |
+         export disk_usage=`df -hT / | awk 'BEGIN{FS=" "}{print $6}' | sed -n '2p' | tr -d "%"`
+         if [ $disk_usage -gt 80 ]; then echo "Disk Usage Warning: $hostname used space is $disk_usage%" | mailx -s "Disk Usage Warning" -r ansible.email@corp.com -S smtp=smtp://smtp.corp.com:587 -S from="ansible.email@corp.com" -S smtp-auth-password="Password" -S smtp-auth=login  admin@corp.com; fi
+      when: "action == 'check-disk'"
+
+- hosts: dbservers
+  become:  yes
+  remote_user: root
+  tasks:
+    - name: "Gather the package information of the distro"
+      ansible.builtin.package_facts:
+        manager: auto
+
+    
+    - name: "Install the package if it doesn't exist"
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      loop:
+        - "postgresql-contrib"  
+        - "postgresql-server"
+      when: "'postgresql-server' not in ansible_facts.packages and action == 'verify_install'"
+    
+    - name: "Install the mailx package"
+      ansible.builtin.yum:
+        name: mailx
+        state: latest
+        update_cache: yes
+      when: "action == 'check-disk'"
+
+    - name: "Check the disk usage of /"
+      shell: |
+         export disk_usage=`df -hT / | awk 'BEGIN{FS=" "}{print $6}' | sed -n '2p' | tr -d "%"`
+         if [ $disk_usage -gt 80 ]; then echo "Disk Usage Warning: $hostname used space is $disk_usage%" | mailx -s "Disk Usage Warning" -r ansible.email@corp.com -S smtp=smtp://smtp.corp.com:587 -S from="ansible.email@corp.com" -S smtp-auth-password="Password" -S smtp-auth=login  admin@corp.com; fi
+      when: "action == 'check-disk'"
+
+- hosts: msbroker
+  become: yes
+  remote_user: root
+  tasks:
+    - name: "Gather the package information of the distro"
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: "Import EPEL GPG key"
+      rpm_key:
+        key: http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6
+        state: present
+      when: "'rabbitmq-server' not in ansible_facts.packages and action == 'verify_install'"
+    
+    - name: Add YUM repo
+      yum_repository:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: https://dl.fedoraproject.org/pub/epel/$releasever/$basearch/
+        gpgcheck: yes
+      when: "'rabbitmq-server' not in ansible_facts.packages and action == 'verify_install'"
+     
+    - name: Update the software package repository
+      yum:
+        name: ‘*’
+        update_cache: yes
+      when: "'rabbitmq-server' not in ansible_facts.packages and action == 'verify_install'"
+     
+    - name: Install RabbitMQ server
+      package:
+        name: “{{ item }}”
+        state: latest
+        loop:
+          - rabbitmq-server
+      when: "'rabbitmq-server' not in ansible_facts.packages and action == 'verify_install'"
+    
+    - name: "Install the mailx package"
+      ansible.builtin.yum:
+        name: mailx
+        state: latest
+        update_cache: yes
+      when: "action == 'check-disk'"
+
+    - name: "Check the disk usage of /"
+      shell: |
+         export disk_usage=`df -hT / | awk 'BEGIN{FS=" "}{print $6}' | sed -n '2p' | tr -d "%"`
+         if [ $disk_usage -gt 80 ]; then echo "Disk Usage Warning: $hostname used space is $disk_usage%" | mailx -s "Disk Usage Warning" -r ansible.email@corp.com -S smtp=smtp://smtp.corp.com:587 -S from="ansible.email@corp.com" -S smtp-auth-password="Password" -S smtp-auth=login  admin@corp.com; fi
+      when: "action == 'check-disk'"

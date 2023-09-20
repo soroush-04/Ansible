@@ -1,0 +1,18 @@
+# defining the servers list
+webservers:
+  hosts:
+    webserver-01:
+      ansible_port: 22
+      ansible_host: 94.130.122.14
+
+dbservers:
+  hosts:
+    db-01:
+      ansible_port: 22
+      ansible_host: 94.130.122.14
+
+msbroker:
+  hosts:
+    msbroker-01:
+      ansible_port: 22
+      ansible_host: 94.130.122.14
